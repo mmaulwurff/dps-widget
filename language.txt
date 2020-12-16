@@ -11,3 +11,8 @@ DPS_ALPHA_RESET = "Reset alpha";
 
 DPS_SCALE = "Scale";
 DPS_SCALE_RESET = "Reset scale";
+
+DPS_X = "Horizontal position";
+DPS_Y = "Vertical position";
+DPS_X_RESET = "Reset horizontal position";
+DPS_Y_RESET = "Reset vertical position";

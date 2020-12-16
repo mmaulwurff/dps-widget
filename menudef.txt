@@ -19,4 +19,12 @@ OptionMenu dps_Menu
   Slider "$DPS_SCALE", dps_scale, 1, 4, 1, 0
   SafeCommand "$DPS_SCALE_RESET", "resetcvar dps_scale"
 
+  StaticText ""
+  Slider "$DPS_X", dps_x, 0, 1, 0.01, 2
+  SafeCommand "$DPS_X_RESET", "resetcvar dps_x"
+
+  StaticText ""
+  Slider "$DPS_Y", dps_y, 0, 1, 0.01, 2
+  SafeCommand "$DPS_Y_RESET", "resetcvar dps_y"
+
 } // OptionMenu dps_Menu

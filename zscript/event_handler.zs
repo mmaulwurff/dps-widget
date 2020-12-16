@@ -46,7 +46,6 @@ class dps_EventHandler : EventHandler
   override
   void renderOverlay(RenderEvent event)
   {
-    vector2 start = (50, 50);
     Color c = mColor.getString();
     double alpha = mAlpha.getDouble();
 
@@ -54,10 +53,13 @@ class dps_EventHandler : EventHandler
     int screenWidth  = Screen.getWidth()  / scale;
     int screenHeight = Screen.getHeight() / scale;
 
+    int startX = int(mX.getDouble() * screenWidth);
+    int startY = int(mY.getDouble() * screenHeight);
+
     Screen.drawTexture( mBackground
                       , NO_ANIMATION
-                      , start.x
-                      , start.y
+                      , startX
+                      , startY
                       , DTA_FillColor     , c
                       , DTA_AlphaChannel  , true
                       , DTA_Alpha         , alpha
@@ -79,13 +81,13 @@ class dps_EventHandler : EventHandler
 
       Screen.drawTexture( mColumn
                         , NO_ANIMATION
-                        , start.x + i
-                        , start.y + GRAPH_HEIGHT - height
+                        , startX + i
+                        , startY + GRAPH_HEIGHT - height
                         , DTA_FillColor     , c
                         , DTA_Alpha         , alpha
                         , DTA_VirtualWidth  , screenWidth
                         , DTA_VirtualHeight , screenHeight
-                        , DTA_ClipBottom    , int(start.y + GRAPH_HEIGHT) * scale
+                        , DTA_ClipBottom    , int(startY + GRAPH_HEIGHT) * scale
                         , DTA_KeepRatio     , true
                         );
     }
@@ -94,8 +96,8 @@ class dps_EventHandler : EventHandler
     int dpsWidth = mBigFont.stringWidth(dps);
     Screen.drawText( mBigFont
                    , Font.CR_WHITE
-                   , start.x + (GRAPH_WIDTH - dpsWidth) / 2
-                   , start.y - mBigTextHeight
+                   , startX + (GRAPH_WIDTH - dpsWidth) / 2
+                   , startY - mBigTextHeight
                    , dps
                    , DTA_VirtualWidth  , screenWidth
                    , DTA_VirtualHeight , screenHeight
@@ -107,8 +109,8 @@ class dps_EventHandler : EventHandler
 
     Screen.drawText( mSmallFont
                    , Font.CR_WHITE
-                   , start.x + (GRAPH_WIDTH - maxWidth) / 2
-                   , start.y + GRAPH_HEIGHT
+                   , startX + (GRAPH_WIDTH - maxWidth) / 2
+                   , startY + GRAPH_HEIGHT
                    , maxString
                    , DTA_VirtualWidth  , screenWidth
                    , DTA_VirtualHeight , screenHeight
@@ -133,6 +135,8 @@ class dps_EventHandler : EventHandler
     mColor = dps_Cvar.from("dps_color");
     mAlpha = dps_Cvar.from("dps_alpha");
     mScale = dps_Cvar.from("dps_scale");
+    mX     = dps_Cvar.from("dps_x");
+    mY     = dps_Cvar.from("dps_y");
   }
 
   private int currentDamageIndex() const { return ( level.time      % TICRATE); }
@@ -183,5 +187,7 @@ class dps_EventHandler : EventHandler
   private dps_Cvar mColor;
   private dps_Cvar mAlpha;
   private dps_Cvar mScale;
+  private dps_Cvar mX;
+  private dps_Cvar mY;
 
 } // class dps_EventHandler
