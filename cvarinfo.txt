@@ -1,2 +1,3 @@
 user color dps_color = "22 22 CC";
 user float dps_alpha = 1.0;
+user int   dps_scale = 2;

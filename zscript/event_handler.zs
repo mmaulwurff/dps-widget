@@ -50,9 +50,9 @@ class dps_EventHandler : EventHandler
     Color c = mColor.getString();
     double alpha = mAlpha.getDouble();
 
-    int mScale = 1;
-    int mScreenWidth  = Screen.getWidth()  / mScale;
-    int mScreenHeight = Screen.getHeight() / mScale;
+    int scale = mScale.getInt();
+    int screenWidth  = Screen.getWidth()  / scale;
+    int screenHeight = Screen.getHeight() / scale;
 
     Screen.drawTexture( mBackground
                       , NO_ANIMATION
@@ -61,8 +61,8 @@ class dps_EventHandler : EventHandler
                       , DTA_FillColor     , c
                       , DTA_AlphaChannel  , true
                       , DTA_Alpha         , alpha
-                      , DTA_VirtualWidth  , mScreenWidth
-                      , DTA_VirtualHeight , mScreenHeight
+                      , DTA_VirtualWidth  , screenWidth
+                      , DTA_VirtualHeight , screenHeight
                       , DTA_DestWidth     , GRAPH_WIDTH - 1
                       , DTA_DestHeight    , GRAPH_HEIGHT
                       , DTA_KeepRatio     , true
@@ -83,9 +83,9 @@ class dps_EventHandler : EventHandler
                         , start.y + GRAPH_HEIGHT - height
                         , DTA_FillColor     , c
                         , DTA_Alpha         , alpha
-                        , DTA_VirtualWidth  , mScreenWidth
-                        , DTA_VirtualHeight , mScreenHeight
-                        , DTA_ClipBottom    , int(start.y + GRAPH_HEIGHT)
+                        , DTA_VirtualWidth  , screenWidth
+                        , DTA_VirtualHeight , screenHeight
+                        , DTA_ClipBottom    , int(start.y + GRAPH_HEIGHT) * scale
                         , DTA_KeepRatio     , true
                         );
     }
@@ -97,8 +97,8 @@ class dps_EventHandler : EventHandler
                    , start.x + (GRAPH_WIDTH - dpsWidth) / 2
                    , start.y - mBigTextHeight
                    , dps
-                   , DTA_VirtualWidth  , mScreenWidth
-                   , DTA_VirtualHeight , mScreenHeight
+                   , DTA_VirtualWidth  , screenWidth
+                   , DTA_VirtualHeight , screenHeight
                    , DTA_KeepRatio     , true
                    );
 
@@ -110,8 +110,8 @@ class dps_EventHandler : EventHandler
                    , start.x + (GRAPH_WIDTH - maxWidth) / 2
                    , start.y + GRAPH_HEIGHT
                    , maxString
-                   , DTA_VirtualWidth  , mScreenWidth
-                   , DTA_VirtualHeight , mScreenHeight
+                   , DTA_VirtualWidth  , screenWidth
+                   , DTA_VirtualHeight , screenHeight
                    , DTA_KeepRatio     , true
                    );
   }
@@ -132,6 +132,7 @@ class dps_EventHandler : EventHandler
 
     mColor = dps_Cvar.from("dps_color");
     mAlpha = dps_Cvar.from("dps_alpha");
+    mScale = dps_Cvar.from("dps_scale");
   }
 
   private int currentDamageIndex() const { return ( level.time      % TICRATE); }
@@ -181,5 +182,6 @@ class dps_EventHandler : EventHandler
 
   private dps_Cvar mColor;
   private dps_Cvar mAlpha;
+  private dps_Cvar mScale;
 
 } // class dps_EventHandler
