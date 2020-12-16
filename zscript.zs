@@ -15,6 +15,11 @@ class dps_EventHandler : EventHandler
   override
   void worldTick()
   {
+    if (!mIsInitialized)
+    {
+      initialize();
+    }
+
     mDamagePerTic[nextDamageIndex()] = 0;
 
     if (level.time % 35 == 0)
@@ -27,15 +32,13 @@ class dps_EventHandler : EventHandler
   void renderOverlay(RenderEvent event)
   {
     vector2 start = (50, 50);
-    TextureID background = TexMan.checkForTexture("dps_back", TexMan.Type_Any);
-    TextureID column = TexMan.checkForTexture("dps_col", TexMan.Type_Any);
     Color c = 0x22DD22;
 
     int mScale = 1;
     int mScreenWidth  = Screen.getWidth()  / mScale;
     int mScreenHeight = Screen.getHeight() / mScale;
 
-    Screen.drawTexture( background
+    Screen.drawTexture( mBackground
                       , NO_ANIMATION
                       , start.x
                       , start.y
@@ -58,7 +61,7 @@ class dps_EventHandler : EventHandler
         ? GRAPH_HEIGHT * mHistory[index] / max
         : 0;
 
-      Screen.drawTexture( column
+      Screen.drawTexture( mColumn
                         , NO_ANIMATION
                         , start.x + i
                         , start.y + GRAPH_HEIGHT - height
@@ -72,27 +75,22 @@ class dps_EventHandler : EventHandler
                         );
     }
 
-    Font bigFont = Font.getFont("BIGFONT");
-
     String dps = String.format("%d", damagePerSecond());
-    int bigTextHeight = bigFont.getHeight();
-    int dpsWidth = bigFont.stringWidth(dps);
-    Screen.drawText( bigFont
+    int dpsWidth = mBigFont.stringWidth(dps);
+    Screen.drawText( mBigFont
                    , Font.CR_WHITE
                    , start.x + (GRAPH_WIDTH - dpsWidth) / 2
-                   , start.y - bigTextHeight
+                   , start.y - mBigTextHeight
                    , dps
                    , DTA_VirtualWidth  , mScreenWidth
                    , DTA_VirtualHeight , mScreenHeight
                    , DTA_KeepRatio     , true
                    );
 
+    String maxString = String.format("%s: %d", StringTable.localize("$DPS_MAX"), max);
+    int maxWidth = mSmallFont.stringWidth(maxString);
 
-    Font smallFont = Font.getFont("SMALLFONT");
-    String maxString = String.format("max: %d", max);
-    int maxWidth = smallFont.stringWidth(maxString);
-
-    Screen.drawText( smallFont
+    Screen.drawText( mSmallFont
                    , Font.CR_WHITE
                    , start.x + (GRAPH_WIDTH - maxWidth) / 2
                    , start.y + GRAPH_HEIGHT
@@ -104,6 +102,19 @@ class dps_EventHandler : EventHandler
   }
 
 // private: ////////////////////////////////////////////////////////////////////////////////////////
+
+  private
+  void initialize()
+  {
+    mIsInitialized = true;
+
+    mBackground = TexMan.checkForTexture("dps_back", TexMan.Type_Any);
+    mColumn     = TexMan.checkForTexture("dps_col", TexMan.Type_Any);
+
+    mBigFont   = Font.getFont("BIGFONT");
+    mSmallFont = Font.getFont("SMALLFONT");
+    mBigTextHeight = mBigFont.getHeight();
+  }
 
   private int currentDamageIndex() const { return ( level.time      % TICRATE); }
   private int nextDamageIndex()    const { return ((level.time + 1) % TICRATE); }
@@ -138,7 +149,16 @@ class dps_EventHandler : EventHandler
   const GRAPH_HEIGHT = 30;
   const GRAPH_WIDTH  = 60;
 
-  int mDamagePerTic[TICRATE];
-  int mHistory[HISTORY_SECONDS];
+  private int mDamagePerTic[TICRATE];
+  private int mHistory[HISTORY_SECONDS];
+
+  private bool mIsInitialized;
+
+  private TextureID mBackground;
+  private TextureID mColumn;
+
+  private Font mBigFont;
+  private Font mSmallFont;
+  private int  mBigTextHeight;
 
 } // class dps_EventHandler
