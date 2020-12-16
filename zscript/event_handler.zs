@@ -48,6 +48,7 @@ class dps_EventHandler : EventHandler
   {
     vector2 start = (50, 50);
     Color c = mColor.getString();
+    double alpha = mAlpha.getDouble();
 
     int mScale = 1;
     int mScreenWidth  = Screen.getWidth()  / mScale;
@@ -59,7 +60,7 @@ class dps_EventHandler : EventHandler
                       , start.y
                       , DTA_FillColor     , c
                       , DTA_AlphaChannel  , true
-                      , DTA_Alpha         , 0.5
+                      , DTA_Alpha         , alpha
                       , DTA_VirtualWidth  , mScreenWidth
                       , DTA_VirtualHeight , mScreenHeight
                       , DTA_DestWidth     , GRAPH_WIDTH - 1
@@ -81,8 +82,7 @@ class dps_EventHandler : EventHandler
                         , start.x + i
                         , start.y + GRAPH_HEIGHT - height
                         , DTA_FillColor     , c
-                        , DTA_AlphaChannel  , true
-                        , DTA_Alpha         , 0.5
+                        , DTA_Alpha         , alpha
                         , DTA_VirtualWidth  , mScreenWidth
                         , DTA_VirtualHeight , mScreenHeight
                         , DTA_ClipBottom    , int(start.y + GRAPH_HEIGHT)
@@ -131,6 +131,7 @@ class dps_EventHandler : EventHandler
     mBigTextHeight = mBigFont.getHeight();
 
     mColor = dps_Cvar.from("dps_color");
+    mAlpha = dps_Cvar.from("dps_alpha");
   }
 
   private int currentDamageIndex() const { return ( level.time      % TICRATE); }
@@ -179,5 +180,6 @@ class dps_EventHandler : EventHandler
   private int  mBigTextHeight;
 
   private dps_Cvar mColor;
+  private dps_Cvar mAlpha;
 
 } // class dps_EventHandler

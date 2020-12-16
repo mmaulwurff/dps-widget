@@ -4,3 +4,5 @@ DPS_MAX = "max";
 DPS_TITLE = "dps-widget Options";
 DPS_COLOR = "Color";
 DPS_COLOR_RESET = "Reset color";
+DPS_ALPHA = "Alpha";
+DPS_ALPHA_RESET = "Reset alpha";

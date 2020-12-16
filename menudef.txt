@@ -11,4 +11,8 @@ OptionMenu dps_Menu
   ColorPicker "$DPS_COLOR", dps_color
   SafeCommand "$DPS_COLOR_RESET", "resetcvar dps_color"
 
+  StaticText ""
+  Slider "$DPS_ALPHA", dps_alpha, 0, 1, 0.1, 1
+  SafeCommand "$DPS_ALPHA_RESET", "resetcvar dps_alpha"
+
 } // OptionMenu dps_Menu
