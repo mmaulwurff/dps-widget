@@ -47,7 +47,7 @@ class dps_EventHandler : EventHandler
   void renderOverlay(RenderEvent event)
   {
     vector2 start = (50, 50);
-    Color c = 0x22DD22;
+    Color c = mColor.getString();
 
     int mScale = 1;
     int mScreenWidth  = Screen.getWidth()  / mScale;
@@ -62,14 +62,14 @@ class dps_EventHandler : EventHandler
                       , DTA_Alpha         , 0.5
                       , DTA_VirtualWidth  , mScreenWidth
                       , DTA_VirtualHeight , mScreenHeight
-                      , DTA_DestWidth     , GRAPH_WIDTH
+                      , DTA_DestWidth     , GRAPH_WIDTH - 1
                       , DTA_DestHeight    , GRAPH_HEIGHT
                       , DTA_KeepRatio     , true
                       );
 
     int currentHistoryIndex = nextHistoryIndex();
     int max = maxInHistory();
-    for (uint i = 0; i < HISTORY_SECONDS; ++i)
+    for (uint i = 0; i < HISTORY_SECONDS - 1; ++i)
     {
       int index  = (i + currentHistoryIndex) % HISTORY_SECONDS;
       int height = max
@@ -129,6 +129,8 @@ class dps_EventHandler : EventHandler
     mBigFont   = Font.getFont("BIGFONT");
     mSmallFont = Font.getFont("SMALLFONT");
     mBigTextHeight = mBigFont.getHeight();
+
+    mColor = dps_Cvar.from("dps_color");
   }
 
   private int currentDamageIndex() const { return ( level.time      % TICRATE); }
@@ -175,5 +177,7 @@ class dps_EventHandler : EventHandler
   private Font mBigFont;
   private Font mSmallFont;
   private int  mBigTextHeight;
+
+  private dps_Cvar mColor;
 
 } // class dps_EventHandler
