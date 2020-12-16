@@ -70,6 +70,10 @@ class dps_EventHandler : EventHandler
                       , DTA_KeepRatio     , true
                       );
 
+    Font bigFont   = Font.getFont("BIGFONT");
+    Font smallFont = Font.getFont("SMALLFONT");
+    int bigTextHeight = bigFont.getHeight();
+
     int currentHistoryIndex = nextHistoryIndex();
     int max = maxInHistory();
     for (uint i = 0; i < HISTORY_SECONDS - 1; ++i)
@@ -93,11 +97,11 @@ class dps_EventHandler : EventHandler
     }
 
     String dps = String.format("%d", damagePerSecond());
-    int dpsWidth = mBigFont.stringWidth(dps);
-    Screen.drawText( mBigFont
+    int dpsWidth = bigFont.stringWidth(dps);
+    Screen.drawText( bigFont
                    , Font.CR_WHITE
                    , startX + (GRAPH_WIDTH - dpsWidth) / 2
-                   , startY - mBigTextHeight
+                   , startY - bigTextHeight
                    , dps
                    , DTA_VirtualWidth  , screenWidth
                    , DTA_VirtualHeight , screenHeight
@@ -105,9 +109,9 @@ class dps_EventHandler : EventHandler
                    );
 
     String maxString = String.format("%s: %d", StringTable.localize("$DPS_MAX"), max);
-    int maxWidth = mSmallFont.stringWidth(maxString);
+    int maxWidth = smallFont.stringWidth(maxString);
 
-    Screen.drawText( mSmallFont
+    Screen.drawText( smallFont
                    , Font.CR_WHITE
                    , startX + (GRAPH_WIDTH - maxWidth) / 2
                    , startY + GRAPH_HEIGHT
@@ -127,10 +131,6 @@ class dps_EventHandler : EventHandler
 
     mBackground = TexMan.checkForTexture("dps_back", TexMan.Type_Any);
     mColumn     = TexMan.checkForTexture("dps_col", TexMan.Type_Any);
-
-    mBigFont   = Font.getFont("BIGFONT");
-    mSmallFont = Font.getFont("SMALLFONT");
-    mBigTextHeight = mBigFont.getHeight();
 
     mColor = dps_Cvar.from("dps_color");
     mAlpha = dps_Cvar.from("dps_alpha");
@@ -179,10 +179,6 @@ class dps_EventHandler : EventHandler
 
   private TextureID mBackground;
   private TextureID mColumn;
-
-  private Font mBigFont;
-  private Font mSmallFont;
-  private int  mBigTextHeight;
 
   private dps_Cvar mColor;
   private dps_Cvar mAlpha;
