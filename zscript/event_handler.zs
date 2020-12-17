@@ -41,6 +41,10 @@ class dps_EventHandler : EventHandler
     {
       mHistory[currentHistoryIndex()] = damagePerSecond();
     }
+
+    mScaleInt = mScale.getInt();
+    mScreenWidth  = Screen.getWidth()  / mScaleInt;
+    mScreenHeight = Screen.getHeight() / mScaleInt;
   }
 
   override
@@ -49,12 +53,8 @@ class dps_EventHandler : EventHandler
     Color c = mColor.getString();
     double alpha = mAlpha.getDouble();
 
-    int scale = mScale.getInt();
-    int screenWidth  = Screen.getWidth()  / scale;
-    int screenHeight = Screen.getHeight() / scale;
-
-    int startX = int(mX.getDouble() * screenWidth);
-    int startY = int(mY.getDouble() * screenHeight);
+    int startX = int(mX.getDouble() * mScreenWidth);
+    int startY = int(mY.getDouble() * mScreenHeight);
 
     Screen.drawTexture( mTexture
                       , NO_ANIMATION
@@ -63,8 +63,8 @@ class dps_EventHandler : EventHandler
                       , DTA_FillColor     , c
                       , DTA_AlphaChannel  , true
                       , DTA_Alpha         , alpha
-                      , DTA_VirtualWidth  , screenWidth
-                      , DTA_VirtualHeight , screenHeight
+                      , DTA_VirtualWidth  , mScreenWidth
+                      , DTA_VirtualHeight , mScreenHeight
                       , DTA_DestWidth     , GRAPH_WIDTH - 1
                       , DTA_DestHeight    , GRAPH_HEIGHT
                       , DTA_KeepRatio     , true
@@ -87,9 +87,9 @@ class dps_EventHandler : EventHandler
                         , startY + GRAPH_HEIGHT - height
                         , DTA_FillColor     , c
                         , DTA_Alpha         , alpha
-                        , DTA_VirtualWidth  , screenWidth
-                        , DTA_VirtualHeight , screenHeight
-                        , DTA_ClipBottom    , int(startY + GRAPH_HEIGHT) * scale
+                        , DTA_VirtualWidth  , mScreenWidth
+                        , DTA_VirtualHeight , mScreenHeight
+                        , DTA_ClipBottom    , int(startY + GRAPH_HEIGHT) * mScaleInt
                         , DTA_KeepRatio     , true
                         );
     }
@@ -97,31 +97,38 @@ class dps_EventHandler : EventHandler
     int bigTextHeight = bigFont.getHeight();
     String dps = String.format("%d", damagePerSecond());
     int dpsWidth = bigFont.stringWidth(dps);
-    Screen.drawText( bigFont
-                   , Font.CR_WHITE
-                   , startX + (GRAPH_WIDTH - dpsWidth) / 2
-                   , startY - bigTextHeight
-                   , dps
-                   , DTA_VirtualWidth  , screenWidth
-                   , DTA_VirtualHeight , screenHeight
-                   , DTA_KeepRatio     , true
-                   );
+
+    drawText( bigFont
+            , startX + (GRAPH_WIDTH - dpsWidth) / 2
+            , startY - bigTextHeight
+            , dps
+            );
 
     String maxString = String.format("%s: %d", StringTable.localize("$DPS_MAX"), max);
     int maxWidth = smallFont.stringWidth(maxString);
 
-    Screen.drawText( smallFont
-                   , Font.CR_WHITE
-                   , startX + (GRAPH_WIDTH - maxWidth) / 2
-                   , startY + GRAPH_HEIGHT
-                   , maxString
-                   , DTA_VirtualWidth  , screenWidth
-                   , DTA_VirtualHeight , screenHeight
-                   , DTA_KeepRatio     , true
-                   );
+    drawText( smallFont
+            , startX + (GRAPH_WIDTH - maxWidth) / 2
+            , startY + GRAPH_HEIGHT
+            , maxString
+            );
   }
 
 // private: ////////////////////////////////////////////////////////////////////////////////////////
+
+  private ui
+  void drawText(Font aFont, int x, int y, String aString)
+  {
+    Screen.drawText( aFont
+                   , Font.CR_WHITE
+                   , x
+                   , y
+                   , aString
+                   , DTA_VirtualWidth  , mScreenWidth
+                   , DTA_VirtualHeight , mScreenHeight
+                   , DTA_KeepRatio     , true
+                   );
+  }
 
   private
   void initialize()
@@ -182,5 +189,9 @@ class dps_EventHandler : EventHandler
   private dps_Cvar mScale;
   private dps_Cvar mX;
   private dps_Cvar mY;
+
+  private int mScaleInt;
+  private int mScreenWidth;
+  private int mScreenHeight;
 
 } // class dps_EventHandler
