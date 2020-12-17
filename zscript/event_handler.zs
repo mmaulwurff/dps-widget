@@ -49,18 +49,54 @@ class dps_EventHandler : EventHandler
   override
   void renderOverlay(RenderEvent event)
   {
+    // prevent flickering when rendering happens before world tick.
     if (level.time % 35 == 0)
     {
       setHistory(currentHistoryIndex(), mDamagePerSecond);
     }
 
-    Color c = mColor.getString();
-    double alpha = mAlpha.getDouble();
-
     int startX = int(mX.getDouble() * mScreenWidth);
     int startY = int(mY.getDouble() * mScreenHeight);
 
     startY += drawText(bigFont, startX, startY, String.format("%d", mDamagePerSecond));
+
+    if (mShowGraph.getBool()) startY += drawGraph(startX, startY);
+    if (mShowMax  .getBool()) startY += drawMax  (startX, startY);
+    if (mShowAvg  .getBool()) startY += drawAvg  (startX, startY);
+    if (mShowTotal.getBool()) startY += drawTotal(startX, startY);
+  }
+
+// private: ////////////////////////////////////////////////////////////////////////////////////////
+
+  private ui
+  int drawTotal(int startX, int startY)
+  {
+    double total = totalInHistory();
+    String totalString = String.format("%s: %d", StringTable.localize("$DPS_TOTAL"), total);
+    return drawText(smallFont, startX, startY, totalString);
+  }
+
+  private ui
+  int drawAvg(int startX, int startY)
+  {
+    double average = averageInHistory();
+    String avgString = String.format("%s: %.2f", StringTable.localize("$DPS_AVERAGE"), average);
+    return drawText(smallFont, startX, startY, avgString);
+  }
+
+  private ui
+  int drawMax(int startX, int startY)
+  {
+    int max = maxInHistory();
+    String maxString = String.format("%s: %d", StringTable.localize("$DPS_MAX"), max);
+    return drawText(smallFont, startX, startY, maxString);
+  }
+
+  private ui
+  int drawGraph(int startX, int startY)
+  {
+    Color c = mColor.getString();
+    double alpha = mAlpha.getDouble();
 
     Screen.drawTexture( mTexture
                       , NO_ANIMATION
@@ -76,8 +112,8 @@ class dps_EventHandler : EventHandler
                       , DTA_KeepRatio     , true
                       );
 
-    int nextHistoryIndex = nextHistoryIndex();
     int max = maxInHistory();
+    int nextHistoryIndex = nextHistoryIndex();
     for (uint i = 0; i < HISTORY_SECONDS; ++i)
     {
       int index  = (i + nextHistoryIndex) % HISTORY_SECONDS;
@@ -100,21 +136,8 @@ class dps_EventHandler : EventHandler
                         );
     }
 
-    startY += GRAPH_HEIGHT;
-
-    String maxString = String.format("%s: %d", StringTable.localize("$DPS_MAX"), max);
-    startY += drawText(smallFont, startX, startY, maxString);
-
-    double average = averageInHistory();
-    String avgString = String.format("%s: %.2f", StringTable.localize("$DPS_AVERAGE"), average);
-    startY += drawText(smallFont, startX, startY, avgString);
-
-    double total = totalInHistory();
-    String totalString = String.format("%s: %d", StringTable.localize("$DPS_TOTAL"), total);
-    startY += drawText(smallFont, startX, startY, totalString);
+    return GRAPH_HEIGHT;
   }
-
-// private: ////////////////////////////////////////////////////////////////////////////////////////
 
   private ui
   int drawText(Font aFont, int x, int y, String aString)
@@ -145,6 +168,11 @@ class dps_EventHandler : EventHandler
     mScale = dps_Cvar.from("dps_scale");
     mX     = dps_Cvar.from("dps_x");
     mY     = dps_Cvar.from("dps_y");
+
+    mShowGraph = dps_Cvar.from("dps_show_graph");
+    mShowMax   = dps_Cvar.from("dps_show_max");
+    mShowAvg   = dps_Cvar.from("dps_show_avg");
+    mShowTotal = dps_Cvar.from("dps_show_total");
   }
 
   private int currentHistoryIndex() const { return ((level.time / TICRATE) % HISTORY_SECONDS); }
@@ -202,6 +230,10 @@ class dps_EventHandler : EventHandler
   private dps_Cvar mScale;
   private dps_Cvar mX;
   private dps_Cvar mY;
+  private dps_Cvar mShowGraph;
+  private dps_Cvar mShowMax;
+  private dps_Cvar mShowAvg;
+  private dps_Cvar mShowTotal;
 
   private int mScaleInt;
   private int mScreenWidth;

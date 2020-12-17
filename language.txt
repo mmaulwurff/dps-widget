@@ -19,3 +19,8 @@ DPS_X = "Horizontal position";
 DPS_Y = "Vertical position";
 DPS_X_RESET = "Reset horizontal position";
 DPS_Y_RESET = "Reset vertical position";
+
+DPS_SHOW_GRAPH = "Show graph";
+DPS_SHOW_MAX   = "Show maximal damage";
+DPS_SHOW_AVG   = "Show average damage";
+DPS_SHOW_TOTAL = "Show total damage";

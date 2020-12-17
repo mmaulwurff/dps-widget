@@ -27,4 +27,10 @@ OptionMenu dps_Menu
   Slider "$DPS_Y", dps_y, 0, 1, 0.01, 2
   SafeCommand "$DPS_Y_RESET", "resetcvar dps_y"
 
+  StaticText ""
+  Option "$DPS_SHOW_GRAPH", dps_show_graph, OnOff
+  Option "$DPS_SHOW_Max"  , dps_show_max  , OnOff
+  Option "$DPS_SHOW_AVG"  , dps_show_avg  , OnOff
+  Option "$DPS_SHOW_TOTAL", dps_show_total, OnOff
+
 } // OptionMenu dps_Menu
