@@ -70,10 +70,6 @@ class dps_EventHandler : EventHandler
                       , DTA_KeepRatio     , true
                       );
 
-    Font bigFont   = Font.getFont("BIGFONT");
-    Font smallFont = Font.getFont("SMALLFONT");
-    int bigTextHeight = bigFont.getHeight();
-
     int currentHistoryIndex = nextHistoryIndex();
     int max = maxInHistory();
     for (uint i = 0; i < HISTORY_SECONDS - 1; ++i)
@@ -82,6 +78,8 @@ class dps_EventHandler : EventHandler
       int height = max
         ? GRAPH_HEIGHT * mHistory[index] / max
         : 0;
+
+      if (height == 0) continue;
 
       Screen.drawTexture( mTexture
                         , NO_ANIMATION
@@ -96,6 +94,7 @@ class dps_EventHandler : EventHandler
                         );
     }
 
+    int bigTextHeight = bigFont.getHeight();
     String dps = String.format("%d", damagePerSecond());
     int dpsWidth = bigFont.stringWidth(dps);
     Screen.drawText( bigFont
