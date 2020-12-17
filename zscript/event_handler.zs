@@ -56,7 +56,7 @@ class dps_EventHandler : EventHandler
     int startX = int(mX.getDouble() * screenWidth);
     int startY = int(mY.getDouble() * screenHeight);
 
-    Screen.drawTexture( mBackground
+    Screen.drawTexture( mTexture
                       , NO_ANIMATION
                       , startX
                       , startY
@@ -83,7 +83,7 @@ class dps_EventHandler : EventHandler
         ? GRAPH_HEIGHT * mHistory[index] / max
         : 0;
 
-      Screen.drawTexture( mColumn
+      Screen.drawTexture( mTexture
                         , NO_ANIMATION
                         , startX + i
                         , startY + GRAPH_HEIGHT - height
@@ -129,8 +129,7 @@ class dps_EventHandler : EventHandler
   {
     mIsInitialized = true;
 
-    mBackground = TexMan.checkForTexture("dps_back", TexMan.Type_Any);
-    mColumn     = TexMan.checkForTexture("dps_col", TexMan.Type_Any);
+    mTexture = TexMan.checkForTexture("dps_tex", TexMan.Type_Any);
 
     mColor = dps_Cvar.from("dps_color");
     mAlpha = dps_Cvar.from("dps_alpha");
@@ -177,8 +176,7 @@ class dps_EventHandler : EventHandler
 
   private bool mIsInitialized;
 
-  private TextureID mBackground;
-  private TextureID mColumn;
+  private TextureID mTexture;
 
   private dps_Cvar mColor;
   private dps_Cvar mAlpha;
