@@ -1,0 +1,7 @@
+AddKeySection "$DPS_KEYSECTION" "dps_keys"
+
+Alias dps_summon_target "summon dps_target"
+AddMenuKey "$DPS_SUMMON_TARGET" dps_summon_target
+
+Alias dps_remove_target "kill dps_target"
+AddMenuKey "$DPS_REMOVE_TARGET" dps_remove_target

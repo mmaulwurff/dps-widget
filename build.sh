@@ -5,5 +5,5 @@ set -e
 filename=dps-widget-$(git describe --abbrev=0 --tags).pk3
 
 rm -f $filename
-zip -R $filename "*.md" "*.txt" "*.zs" "graphics/*.png"
+zip -R $filename "*.md" "*.txt" "*.zs" "graphics/*.png" "sprites/*.png"
 gzdoom $filename "$@"

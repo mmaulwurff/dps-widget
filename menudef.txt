@@ -36,4 +36,8 @@ OptionMenu dps_Menu
   Option      "$DPS_SHOW_AVG"   , dps_show_avg   , OnOff
   Option      "$DPS_SHOW_TOTAL" , dps_show_total , OnOff
 
+  StaticText  ""
+  Control "$DPS_SUMMON_TARGET", dps_summon_target
+  Control "$DPS_REMOVE_TARGET", dps_remove_target
+
 } // OptionMenu dps_Menu
