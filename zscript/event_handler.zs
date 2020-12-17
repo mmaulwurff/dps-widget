@@ -23,7 +23,7 @@ class dps_EventHandler : EventHandler
   {
     if (event.damageSource == players[consolePlayer].mo)
     {
-      mDamagePerSecond += event.damage;
+      mDamagePerTic[currentDamageIndex()] += event.damage;
     }
   }
 
@@ -35,10 +35,10 @@ class dps_EventHandler : EventHandler
       initialize();
     }
 
+    mDamagePerTic[nextDamageIndex()] = 0;
     if (level.time % 35 == 0)
     {
-      setHistory(currentHistoryIndex(), mDamagePerSecond);
-      mDamagePerSecond = 0;
+      setHistory(currentHistoryIndex(), damagePerSecond());
     }
 
     mScaleInt = mScale.getInt();
@@ -52,13 +52,13 @@ class dps_EventHandler : EventHandler
     // prevent flickering when rendering happens before world tick.
     if (level.time % 35 == 0)
     {
-      setHistory(currentHistoryIndex(), mDamagePerSecond);
+      setHistory(currentHistoryIndex(), damagePerSecond());
     }
 
     int startX = int(mX.getDouble() * mScreenWidth);
     int startY = int(mY.getDouble() * mScreenHeight);
 
-    startY += drawText(bigFont, startX, startY, String.format("%d", mDamagePerSecond));
+    startY += drawText(bigFont, startX, startY, String.format("%d", damagePerSecond()));
 
     if (mShowGraph.getBool()) startY += drawGraph(startX, startY);
     if (mShowMax  .getBool()) startY += drawMax  (startX, startY);
@@ -212,13 +212,27 @@ class dps_EventHandler : EventHandler
     mHistory[index] = value;
   }
 
+  private int currentDamageIndex() const { return ( level.time      % TICRATE); }
+  private int nextDamageIndex()    const { return ((level.time + 1) % TICRATE); }
+
+  private
+  int damagePerSecond() const
+  {
+    int result = 0;
+    for (uint i = 0; i < TICRATE; ++i)
+    {
+      result += mDamagePerTic[i];
+    }
+    return result;
+  }
+
   const NO_ANIMATION = 0; // == false
 
   const HISTORY_SECONDS = 60;
   const GRAPH_HEIGHT = 30;
   const GRAPH_WIDTH  = HISTORY_SECONDS;
 
-  private int mDamagePerSecond;
+  private int mDamagePerTic[TICRATE];
   private int mHistory[HISTORY_SECONDS];
 
   private bool mIsInitialized;
