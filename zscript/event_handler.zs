@@ -56,6 +56,8 @@ class dps_EventHandler : EventHandler
     int startX = int(mX.getDouble() * mScreenWidth);
     int startY = int(mY.getDouble() * mScreenHeight);
 
+    startY += drawText(bigFont, startX, startY, String.format("%d", damagePerSecond()));
+
     Screen.drawTexture( mTexture
                       , NO_ANIMATION
                       , startX
@@ -94,40 +96,33 @@ class dps_EventHandler : EventHandler
                         );
     }
 
-    int bigTextHeight = bigFont.getHeight();
-    String dps = String.format("%d", damagePerSecond());
-    int dpsWidth = bigFont.stringWidth(dps);
-
-    drawText( bigFont
-            , startX + (GRAPH_WIDTH - dpsWidth) / 2
-            , startY - bigTextHeight
-            , dps
-            );
+    startY += GRAPH_HEIGHT;
 
     String maxString = String.format("%s: %d", StringTable.localize("$DPS_MAX"), max);
-    int maxWidth = smallFont.stringWidth(maxString);
+    startY += drawText(smallFont, startX, startY, maxString);
 
-    drawText( smallFont
-            , startX + (GRAPH_WIDTH - maxWidth) / 2
-            , startY + GRAPH_HEIGHT
-            , maxString
-            );
+    double average = averageInHistory();
+    String avgString = String.format("%s: %.2f", StringTable.localize("$DPS_AVERAGE"), average);
+    startY += drawText(smallFont, startX, startY, avgString);
   }
 
 // private: ////////////////////////////////////////////////////////////////////////////////////////
 
   private ui
-  void drawText(Font aFont, int x, int y, String aString)
+  int drawText(Font aFont, int x, int y, String aString)
   {
+    int width = aFont.stringWidth(aString);
     Screen.drawText( aFont
                    , Font.CR_WHITE
-                   , x
+                   , x + (GRAPH_WIDTH - width) / 2
                    , y
                    , aString
                    , DTA_VirtualWidth  , mScreenWidth
                    , DTA_VirtualHeight , mScreenHeight
                    , DTA_KeepRatio     , true
                    );
+
+    return aFont.getHeight();
   }
 
   private
@@ -169,6 +164,18 @@ class dps_EventHandler : EventHandler
     {
       result = max(mHistory[i], result);
     }
+    return result;
+  }
+
+  private
+  double averageInHistory() const
+  {
+    int sum = 0;
+    for (uint i = 0; i < HISTORY_SECONDS; ++i)
+    {
+      sum += mHistory[i];
+    }
+    double result = double(sum) / HISTORY_SECONDS;
     return result;
   }
 

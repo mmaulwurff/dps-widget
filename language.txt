@@ -1,7 +1,9 @@
 [enu default]
 
-DPS_MAX = "max";
 DPS_TITLE = "dps-widget Options";
+
+DPS_MAX = "max";
+DPS_AVERAGE = "avg";
 
 DPS_COLOR = "Color";
 DPS_COLOR_RESET = "Reset color";

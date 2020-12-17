@@ -8,8 +8,9 @@ dps-widget is an add-on for GZDoom that displays DPS (damage per second).
 
 - DPS display
 - 1-minute DPS history graph
-- Maximal DPS for the last minute display
-- Customizable looks
+- maximal DPS for the last minute
+- average DPS for the last minute
+- customizable looks
 
 ## License
 
