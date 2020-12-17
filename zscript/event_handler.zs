@@ -104,6 +104,10 @@ class dps_EventHandler : EventHandler
     double average = averageInHistory();
     String avgString = String.format("%s: %.2f", StringTable.localize("$DPS_AVERAGE"), average);
     startY += drawText(smallFont, startX, startY, avgString);
+
+    double total = totalInHistory();
+    String totalString = String.format("%s: %d", StringTable.localize("$DPS_TOTAL"), total);
+    startY += drawText(smallFont, startX, startY, totalString);
   }
 
 // private: ////////////////////////////////////////////////////////////////////////////////////////
@@ -168,15 +172,20 @@ class dps_EventHandler : EventHandler
   }
 
   private
-  double averageInHistory() const
+  int totalInHistory() const
   {
-    int sum = 0;
+    int result = 0;
     for (uint i = 0; i < HISTORY_SECONDS; ++i)
     {
-      sum += mHistory[i];
+      result += mHistory[i];
     }
-    double result = double(sum) / HISTORY_SECONDS;
     return result;
+  }
+
+  private
+  double averageInHistory() const
+  {
+    return double(totalInHistory()) / HISTORY_SECONDS;
   }
 
   const HISTORY_SECONDS = 60;
