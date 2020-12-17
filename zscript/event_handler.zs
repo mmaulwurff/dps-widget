@@ -23,7 +23,7 @@ class dps_EventHandler : EventHandler
   {
     if (event.damageSource == players[consolePlayer].mo)
     {
-      mDamagePerTic[currentDamageIndex()] += event.damage;
+      mDamagePerSecond += event.damage;
     }
   }
 
@@ -35,7 +35,11 @@ class dps_EventHandler : EventHandler
       initialize();
     }
 
-    mDamagePerTic[nextDamageIndex()] = 0;
+    if (level.time % 35 == 0)
+    {
+      setHistory(currentHistoryIndex(), mDamagePerSecond);
+      mDamagePerSecond = 0;
+    }
 
     mScaleInt = mScale.getInt();
     mScreenWidth  = Screen.getWidth()  / mScaleInt;
@@ -47,7 +51,7 @@ class dps_EventHandler : EventHandler
   {
     if (level.time % 35 == 0)
     {
-      setHistory(currentHistoryIndex(), damagePerSecond());
+      setHistory(currentHistoryIndex(), mDamagePerSecond);
     }
 
     Color c = mColor.getString();
@@ -56,7 +60,7 @@ class dps_EventHandler : EventHandler
     int startX = int(mX.getDouble() * mScreenWidth);
     int startY = int(mY.getDouble() * mScreenHeight);
 
-    startY += drawText(bigFont, startX, startY, String.format("%d", damagePerSecond()));
+    startY += drawText(bigFont, startX, startY, String.format("%d", mDamagePerSecond));
 
     Screen.drawTexture( mTexture
                       , NO_ANIMATION
@@ -143,20 +147,6 @@ class dps_EventHandler : EventHandler
     mY     = dps_Cvar.from("dps_y");
   }
 
-  private int currentDamageIndex() const { return ( level.time      % TICRATE); }
-  private int nextDamageIndex()    const { return ((level.time + 1) % TICRATE); }
-
-  private
-  int damagePerSecond() const
-  {
-    int result = 0;
-    for (uint i = 0; i < TICRATE; ++i)
-    {
-      result += mDamagePerTic[i];
-    }
-    return result;
-  }
-
   private int currentHistoryIndex() const { return ((level.time / TICRATE) % HISTORY_SECONDS); }
   private int nextHistoryIndex() const { return (((level.time / TICRATE) + 1) % HISTORY_SECONDS); }
 
@@ -188,18 +178,19 @@ class dps_EventHandler : EventHandler
     return double(totalInHistory()) / HISTORY_SECONDS;
   }
 
-  const HISTORY_SECONDS = 60;
-  const NO_ANIMATION = 0; // == false
-  const GRAPH_HEIGHT = 30;
-  const GRAPH_WIDTH  = 60;
-
   private play
   void setHistory(int index, int value) const
   {
     mHistory[index] = value;
   }
 
-  private int mDamagePerTic[TICRATE];
+  const NO_ANIMATION = 0; // == false
+
+  const HISTORY_SECONDS = 60;
+  const GRAPH_HEIGHT = 30;
+  const GRAPH_WIDTH  = HISTORY_SECONDS;
+
+  private int mDamagePerSecond;
   private int mHistory[HISTORY_SECONDS];
 
   private bool mIsInitialized;
