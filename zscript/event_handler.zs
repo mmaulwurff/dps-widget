@@ -37,11 +37,6 @@ class dps_EventHandler : EventHandler
 
     mDamagePerTic[nextDamageIndex()] = 0;
 
-    if (level.time % 35 == 0)
-    {
-      mHistory[currentHistoryIndex()] = damagePerSecond();
-    }
-
     mScaleInt = mScale.getInt();
     mScreenWidth  = Screen.getWidth()  / mScaleInt;
     mScreenHeight = Screen.getHeight() / mScaleInt;
@@ -50,6 +45,11 @@ class dps_EventHandler : EventHandler
   override
   void renderOverlay(RenderEvent event)
   {
+    if (level.time % 35 == 0)
+    {
+      setHistory(currentHistoryIndex(), damagePerSecond());
+    }
+
     Color c = mColor.getString();
     double alpha = mAlpha.getDouble();
 
@@ -67,16 +67,16 @@ class dps_EventHandler : EventHandler
                       , DTA_Alpha         , alpha
                       , DTA_VirtualWidth  , mScreenWidth
                       , DTA_VirtualHeight , mScreenHeight
-                      , DTA_DestWidth     , GRAPH_WIDTH - 1
+                      , DTA_DestWidth     , GRAPH_WIDTH
                       , DTA_DestHeight    , GRAPH_HEIGHT
                       , DTA_KeepRatio     , true
                       );
 
-    int currentHistoryIndex = nextHistoryIndex();
+    int nextHistoryIndex = nextHistoryIndex();
     int max = maxInHistory();
-    for (uint i = 0; i < HISTORY_SECONDS - 1; ++i)
+    for (uint i = 0; i < HISTORY_SECONDS; ++i)
     {
-      int index  = (i + currentHistoryIndex) % HISTORY_SECONDS;
+      int index  = (i + nextHistoryIndex) % HISTORY_SECONDS;
       int height = max
         ? GRAPH_HEIGHT * mHistory[index] / max
         : 0;
@@ -183,6 +183,12 @@ class dps_EventHandler : EventHandler
   const NO_ANIMATION = 0; // == false
   const GRAPH_HEIGHT = 30;
   const GRAPH_WIDTH  = 60;
+
+  private play
+  void setHistory(int index, int value) const
+  {
+    mHistory[index] = value;
+  }
 
   private int mDamagePerTic[TICRATE];
   private int mHistory[HISTORY_SECONDS];
