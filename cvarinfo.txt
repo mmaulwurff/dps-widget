@@ -1,4 +1,4 @@
-user color dps_color = "22 22 CC";
+user color dps_color = "8f 8f ff";
 user float dps_alpha = 1.0;
 user int   dps_scale = 2;
 user float dps_x     = 0.1;
