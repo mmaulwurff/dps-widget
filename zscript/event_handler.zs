@@ -41,7 +41,6 @@ class dps_EventHandler : EventHandler
       if (mShowTotal.getBool()) mTotal = total();
       if (mShowGraph.getBool())
       {
-        mMaxSeparated = maximumSeparated();
         updateBarHeights();
       }
     }
@@ -246,26 +245,6 @@ class dps_EventHandler : EventHandler
   }
 
   private
-  int maximumSeparated() const
-  {
-    int result = 0;
-
-    uint end = mHistorySize.getInt();
-    for (int i = 0; i < end; ++i)
-    {
-      int localSum = 0;
-      for (int j = 0; j < TICRATE; ++j)
-      {
-        int index = makeIndex(- i * TICRATE - j + HISTORY_SIZE + 1);
-        localSum += mHistory[index];
-      }
-      result = max(result, localSum);
-    }
-
-    return result;
-  }
-
-  private
   double average() const
   {
     double sum = 0;
@@ -278,20 +257,43 @@ class dps_EventHandler : EventHandler
   }
 
   private
+  int maximumSeparated() const
+  {
+    int result = 0;
+
+    int start = HISTORY_SECONDS - mHistorySize.getInt();
+    for (int i = start; i < HISTORY_SECONDS; ++i)
+    {
+      int localSum = 0;
+      for (int j = 0; j < TICRATE; ++j)
+      {
+        int index = makeIndex(i * TICRATE + j - HISTORY_SIZE + 1);
+        localSum += mHistory[index];
+      }
+      result = max(result, localSum);
+    }
+
+    return result;
+  }
+
+  private
   void updateBarHeights()
   {
-    for (int i = 0; i < HISTORY_SECONDS; ++i)
+    int maxSeparated = maximumSeparated();
+
+    int start = HISTORY_SECONDS - mHistorySize.getInt();
+    for (int i = start; i < HISTORY_SECONDS; ++i)
     {
       mBarHeights[i] = 0;
 
-      if (mMaxSeparated == 0) continue;
+      if (maxSeparated == 0) continue;
 
       for (int j = 0; j < TICRATE; ++j)
       {
         int index = makeIndex(i * TICRATE + j - HISTORY_SIZE + 1);
         mBarHeights[i] += mHistory[index];
       }
-      mBarHeights[i] = mBarHeights[i] * GRAPH_HEIGHT / mMaxSeparated;
+      mBarHeights[i] = mBarHeights[i] * GRAPH_HEIGHT / maxSeparated;
     }
   }
 
@@ -335,6 +337,5 @@ class dps_EventHandler : EventHandler
   private int mMax;
   private double mAverage;
   private int mTotal;
-  private int mMaxSeparated;
 
 } // class dps_EventHandler
