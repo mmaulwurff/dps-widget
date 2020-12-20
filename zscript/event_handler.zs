@@ -36,7 +36,8 @@ class dps_EventHandler : EventHandler
     }
 
     mHistory[nextIndex()] = 0;
-    mDps = damagePerSecond();
+
+    if (mShowDps) mDps = damagePerSecond();
 
     if (level.time % 35 == 0)
     {
@@ -61,8 +62,7 @@ class dps_EventHandler : EventHandler
     int startX = int(mX.getDouble() * screenWidth);
     int startY = int(mY.getDouble() * screenHeight);
 
-    startY += drawText(bigFont, startX, startY, String.format("%d", mDps), screenWidth, screenHeight);
-
+    if (mShowDps  .getBool()) startY += drawDps  (startX, startY, screenWidth, screenHeight);
     if (mShowGraph.getBool()) startY += drawGraph(startX, startY, screenWidth, screenHeight, scale);
     if (mShowMax  .getBool()) startY += drawMax  (startX, startY, screenWidth, screenHeight);
     if (mShowAvg  .getBool()) startY += drawAvg  (startX, startY, screenWidth, screenHeight);
@@ -70,6 +70,13 @@ class dps_EventHandler : EventHandler
   }
 
 // private: ////////////////////////////////////////////////////////////////////////////////////////
+
+  private ui
+  int drawDps(int startX, int startY, int screenWidth, int screenHeight)
+  {
+    String dpsString = String.format("%d", mDps);
+    return drawText(bigFont, startX, startY, dpsString, screenWidth, screenHeight);
+  }
 
   private ui
   int drawTotal(int startX, int startY, int screenWidth, int screenHeight)
@@ -163,6 +170,7 @@ class dps_EventHandler : EventHandler
     mX     = dps_Cvar.from("dps_x");
     mY     = dps_Cvar.from("dps_y");
 
+    mShowDps   = dps_Cvar.from("dps_show_dps");
     mShowGraph = dps_Cvar.from("dps_show_graph");
     mShowMax   = dps_Cvar.from("dps_show_max");
     mShowAvg   = dps_Cvar.from("dps_show_avg");
@@ -288,6 +296,8 @@ class dps_EventHandler : EventHandler
   private dps_Cvar mScale;
   private dps_Cvar mX;
   private dps_Cvar mY;
+
+  private dps_Cvar mShowDps;
   private dps_Cvar mShowGraph;
   private dps_Cvar mShowMax;
   private dps_Cvar mShowAvg;
