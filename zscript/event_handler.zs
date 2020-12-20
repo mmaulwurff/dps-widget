@@ -18,14 +18,9 @@
 class dps_EventHandler : EventHandler
 {
 
-  override
-  void worldThingDamaged(WorldEvent event)
-  {
-    if (event.damageSource == players[consolePlayer].mo)
-    {
-      mHistory[currentIndex()] += event.damage;
-    }
-  }
+  override void worldThingDamaged (WorldEvent event) { registerEvent(event); }
+  override void worldLineDamaged  (WorldEvent event) { registerEvent(event); }
+  override void worldSectorDamaged(WorldEvent event) { registerEvent(event); }
 
   override
   void worldTick()
@@ -76,6 +71,15 @@ class dps_EventHandler : EventHandler
   }
 
 // private: ////////////////////////////////////////////////////////////////////////////////////////
+
+  private
+  void registerEvent(WorldEvent event)
+  {
+    if (event.damageSource == players[consolePlayer].mo)
+    {
+      mHistory[currentIndex()] += event.damage;
+    }
+  }
 
   private play
   void clear() const
