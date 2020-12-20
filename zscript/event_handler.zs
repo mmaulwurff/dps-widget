@@ -69,7 +69,22 @@ class dps_EventHandler : EventHandler
     if (mShowTotal.getBool()) startY += drawTotal(startX, startY, screenWidth, screenHeight);
   }
 
+  override
+  void consoleProcess(ConsoleEvent event)
+  {
+    if (event.name == "dps_clear") clear();
+  }
+
 // private: ////////////////////////////////////////////////////////////////////////////////////////
+
+  private play
+  void clear() const
+  {
+    for (uint i = 0; i < HISTORY_SIZE; ++i)
+    {
+      mHistory[i] = 0;
+    }
+  }
 
   private ui
   int drawDps(int startX, int startY, int screenWidth, int screenHeight)

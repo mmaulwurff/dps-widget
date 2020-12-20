@@ -45,5 +45,6 @@ OptionMenu dps_Menu
   StaticText  "$DPS_CONTROLS", 1
   Control "$DPS_SUMMON_TARGET", dps_summon_target
   Control "$DPS_REMOVE_TARGET", dps_remove_target
+  Control "$DPS_CLEAR"        , dps_clear
 
 } // OptionMenu dps_Menu
