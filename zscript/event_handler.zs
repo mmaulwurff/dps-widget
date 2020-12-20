@@ -23,7 +23,7 @@ class dps_EventHandler : EventHandler
   {
     if (event.damageSource == players[consolePlayer].mo)
     {
-      mDamagePerTic[currentDamageIndex()] += event.damage;
+      mHistory[currentIndex()] += event.damage;
     }
   }
 
@@ -35,30 +35,34 @@ class dps_EventHandler : EventHandler
       initialize();
     }
 
-    mDamagePerTic[nextDamageIndex()] = 0;
-    if (level.time % 35 == 0)
-    {
-      setHistory(currentHistoryIndex(), damagePerSecond());
-    }
+    mHistory[nextIndex()] = 0;
 
     mScaleInt = mScale.getInt();
     mScreenWidth  = Screen.getWidth()  / mScaleInt;
     mScreenHeight = Screen.getHeight() / mScaleInt;
+
+    mDps = damagePerSecond();
+
+    if (level.time % 35 == 0)
+    {
+      if (mShowMax  .getBool()) mMax = maximum();
+      if (mShowAvg  .getBool()) mAverage = average();
+      if (mShowTotal.getBool()) mTotal = total();
+      if (mShowGraph.getBool())
+      {
+        mMaxSeparated = maximumSeparated();
+        updateBarHeights();
+      }
+    }
   }
 
   override
   void renderOverlay(RenderEvent event)
   {
-    // prevent flickering when rendering happens before world tick.
-    if (level.time % 35 == 0)
-    {
-      setHistory(currentHistoryIndex(), damagePerSecond());
-    }
-
     int startX = int(mX.getDouble() * mScreenWidth);
     int startY = int(mY.getDouble() * mScreenHeight);
 
-    startY += drawText(bigFont, startX, startY, String.format("%d", damagePerSecond()));
+    startY += drawText(bigFont, startX, startY, String.format("%d", mDps));
 
     if (mShowGraph.getBool()) startY += drawGraph(startX, startY);
     if (mShowMax  .getBool()) startY += drawMax  (startX, startY);
@@ -71,24 +75,21 @@ class dps_EventHandler : EventHandler
   private ui
   int drawTotal(int startX, int startY)
   {
-    double total = totalInHistory();
-    String totalString = String.format("%s: %d", StringTable.localize("$DPS_TOTAL"), total);
+    String totalString = String.format("%s: %d", StringTable.localize("$DPS_TOTAL"), mTotal);
     return drawText(smallFont, startX, startY, totalString);
   }
 
   private ui
   int drawAvg(int startX, int startY)
   {
-    double average = averageInHistory();
-    String avgString = String.format("%s: %.2f", StringTable.localize("$DPS_AVERAGE"), average);
+    String avgString = String.format("%s: %.2f", StringTable.localize("$DPS_AVERAGE"), mAverage);
     return drawText(smallFont, startX, startY, avgString);
   }
 
   private ui
   int drawMax(int startX, int startY)
   {
-    int max = maxInHistory();
-    String maxString = String.format("%s: %d", StringTable.localize("$DPS_MAX"), max);
+    String maxString = String.format("%s: %d", StringTable.localize("$DPS_MAX"), mMax);
     return drawText(smallFont, startX, startY, maxString);
   }
 
@@ -98,6 +99,7 @@ class dps_EventHandler : EventHandler
     Color c = mColor.getString();
     double alpha = mAlpha.getDouble();
 
+    // background
     Screen.drawTexture( mTexture
                       , NO_ANIMATION
                       , startX
@@ -112,31 +114,30 @@ class dps_EventHandler : EventHandler
                       , DTA_KeepRatio     , true
                       );
 
-    int max = maxInHistory();
-    int nextHistoryIndex = nextHistoryIndex();
     for (uint i = 0; i < HISTORY_SECONDS; ++i)
     {
-      int index  = (i + nextHistoryIndex) % HISTORY_SECONDS;
-      int height = max
-        ? GRAPH_HEIGHT * mHistory[index] / max
-        : 0;
+      if (mBarHeights[i] == 0) continue;
 
-      if (height == 0) continue;
-
-      Screen.drawTexture( mTexture
-                        , NO_ANIMATION
-                        , startX + i
-                        , startY + GRAPH_HEIGHT - height
-                        , DTA_FillColor     , c
-                        , DTA_Alpha         , alpha
-                        , DTA_VirtualWidth  , mScreenWidth
-                        , DTA_VirtualHeight , mScreenHeight
-                        , DTA_ClipBottom    , int(startY + GRAPH_HEIGHT) * mScaleInt
-                        , DTA_KeepRatio     , true
-                        );
+      drawBar(startX, startY, i, mBarHeights[i], c, alpha);
     }
 
     return GRAPH_HEIGHT;
+  }
+
+  private ui
+  void drawBar(int startX, int startY, int i, int height, Color aColor, double alpha)
+  {
+    Screen.drawTexture( mTexture
+                      , NO_ANIMATION
+                      , startX + i
+                      , startY + GRAPH_HEIGHT - height
+                      , DTA_FillColor     , aColor
+                      , DTA_Alpha         , alpha
+                      , DTA_VirtualWidth  , mScreenWidth
+                      , DTA_VirtualHeight , mScreenHeight
+                      , DTA_ClipBottom    , int(startY + GRAPH_HEIGHT) * mScaleInt
+                      , DTA_KeepRatio     , true
+                      );
   }
 
   private ui
@@ -175,25 +176,23 @@ class dps_EventHandler : EventHandler
     mShowTotal = dps_Cvar.from("dps_show_total");
   }
 
-  private int currentHistoryIndex() const { return ((level.time / TICRATE) % HISTORY_SECONDS); }
-  private int nextHistoryIndex() const { return (((level.time / TICRATE) + 1) % HISTORY_SECONDS); }
-
   private
-  int maxInHistory() const
+  int damagePerSecond() const
   {
     int result = 0;
-    for (uint i = 0; i < HISTORY_SECONDS; ++i)
+    for (int i = 0; i < TICRATE; ++i)
     {
-      result = max(mHistory[i], result);
+      int index = makeIndex(-i);
+      result += mHistory[index];
     }
     return result;
   }
 
   private
-  int totalInHistory() const
+  int total() const
   {
     int result = 0;
-    for (uint i = 0; i < HISTORY_SECONDS; ++i)
+    for (uint i = 0; i < HISTORY_SIZE; ++i)
     {
       result += mHistory[i];
     }
@@ -201,39 +200,91 @@ class dps_EventHandler : EventHandler
   }
 
   private
-  double averageInHistory() const
+  int maximum() const
   {
-    return double(totalInHistory()) / HISTORY_SECONDS;
-  }
+    int max = 0;
+    for (uint i = 0; i < HISTORY_SIZE - TICRATE; ++i)
+    {
+      int localSum = 0;
+      for (int j = 0; j < TICRATE; ++j)
+      {
+        // makeIndex inlined here for better performance.
+        int index = (level.time + i + j) % HISTORY_SIZE;
+        localSum += mHistory[index];
+      }
 
-  private play
-  void setHistory(int index, int value) const
-  {
-    mHistory[index] = value;
-  }
+      max = max(max, localSum);
+    }
 
-  private int currentDamageIndex() const { return ( level.time      % TICRATE); }
-  private int nextDamageIndex()    const { return ((level.time + 1) % TICRATE); }
+    return max;
+  }
 
   private
-  int damagePerSecond() const
+  int maximumSeparated() const
   {
     int result = 0;
-    for (uint i = 0; i < TICRATE; ++i)
+
+    for (int i = 0; i < HISTORY_SECONDS; ++i)
     {
-      result += mDamagePerTic[i];
+      int localSum = 0;
+      for (int j = 0; j < TICRATE; ++j)
+      {
+        int index = makeIndex(i * TICRATE + j - HISTORY_SIZE + 1);
+        localSum += mHistory[index];
+      }
+      result = max(result, localSum);
     }
+
     return result;
   }
+
+  private
+  double average() const
+  {
+    double sum = 0;
+    for (int i = 0; i < HISTORY_SIZE; ++i)
+    {
+      sum += mHistory[i];
+    }
+    return sum / HISTORY_SIZE;
+  }
+
+  private
+  void updateBarHeights()
+  {
+    for (int i = 0; i < HISTORY_SECONDS; ++i)
+    {
+      mBarHeights[i] = 0;
+
+      if (mMaxSeparated == 0) continue;
+
+      for (int j = 0; j < TICRATE; ++j)
+      {
+        int index = makeIndex(i * TICRATE + j - HISTORY_SIZE + 1);
+        mBarHeights[i] += mHistory[index];
+      }
+      mBarHeights[i] = mBarHeights[i] * GRAPH_HEIGHT / mMaxSeparated;
+    }
+  }
+
+  private
+  int makeIndex(int offset) const
+  {
+    return (level.time + offset + HISTORY_SIZE) % HISTORY_SIZE;
+  }
+
+  private int nextIndex()    const { return makeIndex(1); }
+  private int currentIndex() const { return makeIndex(0); }
 
   const NO_ANIMATION = 0; // == false
 
   const HISTORY_SECONDS = 60;
   const GRAPH_HEIGHT = 30;
   const GRAPH_WIDTH  = HISTORY_SECONDS;
+  const HISTORY_SIZE = HISTORY_SECONDS * TICRATE;
 
-  private int mDamagePerTic[TICRATE];
-  private int mHistory[HISTORY_SECONDS];
+  private int mHistory[HISTORY_SIZE];
+  private int mBarHeights[HISTORY_SECONDS];
 
   private bool mIsInitialized;
 
@@ -252,5 +303,11 @@ class dps_EventHandler : EventHandler
   private int mScaleInt;
   private int mScreenWidth;
   private int mScreenHeight;
+
+  private int mDps;
+  private int mMax;
+  private double mAverage;
+  private int mTotal;
+  private int mMaxSeparated;
 
 } // class dps_EventHandler
