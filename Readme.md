@@ -4,6 +4,8 @@
 
 dps-widget is an add-on for GZDoom that displays DPS (damage per second).
 
+This mod is a part of [m8f's toolbox](https://mmaulwurff.github.io/pages/toolbox).
+
 ## Features
 
 - DPS display
