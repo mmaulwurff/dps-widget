@@ -121,7 +121,7 @@ class dps_EventHandler : EventHandler
       drawBar(startX, startY, i, mBarHeights[i], c, alpha);
     }
 
-    return GRAPH_HEIGHT;
+    return GRAPH_HEIGHT + 1;
   }
 
   private ui
