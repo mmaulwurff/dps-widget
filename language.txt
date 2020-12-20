@@ -27,5 +27,6 @@ DPS_SHOW_AVG    = "Show average damage";
 DPS_SHOW_TOTAL  = "Show total damage";
 
 DPS_KEYSECTION    = "dps-widget";
+DPS_CONTROLS      = "Controls";
 DPS_SUMMON_TARGET = "Create an invulnerable target";
 DPS_REMOVE_TARGET = "Remove targets";

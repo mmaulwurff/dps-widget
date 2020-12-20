@@ -37,6 +37,7 @@ OptionMenu dps_Menu
   Option      "$DPS_SHOW_TOTAL" , dps_show_total , OnOff
 
   StaticText  ""
+  StaticText  "$DPS_CONTROLS", 1
   Control "$DPS_SUMMON_TARGET", dps_summon_target
   Control "$DPS_REMOVE_TARGET", dps_remove_target
 
