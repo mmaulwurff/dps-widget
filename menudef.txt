@@ -8,9 +8,6 @@ OptionMenu dps_Menu
 
   Title "$DPS_TITLE"
 
-  StaticText  "$DPS_NOTE"
-
-  StaticText  ""
   ColorPicker "$DPS_COLOR", dps_color
   SafeCommand "$DPS_COLOR_RESET", "resetcvar dps_color"
 

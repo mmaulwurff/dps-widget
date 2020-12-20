@@ -1,7 +1,6 @@
 [enu default]
 
 DPS_TITLE       = "dps-widget Options";
-DPS_NOTE        = "History period for max, avg and total is 1 minute.";
 
 DPS_MAX         = "max";
 DPS_AVERAGE     = "avg";
