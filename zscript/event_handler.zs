@@ -253,7 +253,7 @@ class dps_EventHandler : EventHandler
     {
       sum += mHistory[makeIndex(-i)];
     }
-    return sum / HISTORY_SIZE;
+    return sum * TICRATE / HISTORY_SIZE;
   }
 
   private
