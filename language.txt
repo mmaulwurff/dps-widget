@@ -31,3 +31,6 @@ DPS_KEYSECTION    = "dps-widget";
 DPS_CONTROLS      = "Controls";
 DPS_SUMMON_TARGET = "Create an invulnerable target";
 DPS_REMOVE_TARGET = "Remove targets";
+
+DPS_HISTORY = "History size, seconds";
+DPS_HISTORY_RESET = "Reset history size";

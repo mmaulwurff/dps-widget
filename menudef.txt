@@ -31,6 +31,10 @@ OptionMenu dps_Menu
   SafeCommand "$DPS_Y_RESET", "resetcvar dps_y"
 
   StaticText  ""
+  Slider      "$DPS_HISTORY", dps_history, 5, 60, 1, 0
+  SafeCommand "$DPS_HISTORY_RESET", "resetcvar dps_history"
+
+  StaticText  ""
   Option      "$DPS_SHOW_DPS"   , dps_show_dps   , OnOff
   Option      "$DPS_SHOW_GRAPH" , dps_show_graph , OnOff
   Option      "$DPS_SHOW_Max"   , dps_show_max   , OnOff

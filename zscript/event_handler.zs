@@ -104,35 +104,38 @@ class dps_EventHandler : EventHandler
   {
     Color c = mColor.getString();
     double alpha = mAlpha.getDouble();
+    int width = mHistorySize.getInt();
+    double x = startX + (GRAPH_WIDTH - width) / 2.0;
 
     // background
     Screen.drawTexture( mTexture
                       , NO_ANIMATION
-                      , startX
+                      , x
                       , startY
                       , DTA_FillColor     , c
                       , DTA_AlphaChannel  , true
                       , DTA_Alpha         , alpha
                       , DTA_VirtualWidth  , screenWidth
                       , DTA_VirtualHeight , screenHeight
-                      , DTA_DestWidth     , GRAPH_WIDTH
+                      , DTA_DestWidth     , width
                       , DTA_DestHeight    , GRAPH_HEIGHT
                       , DTA_KeepRatio     , true
                       );
 
-    for (uint i = 0; i < HISTORY_SECONDS; ++i)
+    for (uint i = HISTORY_SECONDS - width; i < HISTORY_SECONDS; ++i)
     {
       if (mBarHeights[i] == 0) continue;
 
       Screen.drawTexture( mTexture
                         , NO_ANIMATION
-                        , startX + i
+                        , i + x - HISTORY_SECONDS + width
                         , startY + GRAPH_HEIGHT - mBarHeights[i]
                         , DTA_FillColor     , c
                         , DTA_Alpha         , alpha
                         , DTA_VirtualWidth  , screenWidth
                         , DTA_VirtualHeight , screenHeight
                         , DTA_ClipBottom    , int(startY + GRAPH_HEIGHT) * scale
+                        , DTA_ClipTop       , startY * scale
                         , DTA_KeepRatio     , true
                         );
     }
@@ -169,6 +172,7 @@ class dps_EventHandler : EventHandler
     mScale = dps_Cvar.from("dps_scale");
     mX     = dps_Cvar.from("dps_x");
     mY     = dps_Cvar.from("dps_y");
+    mHistorySize = dps_Cvar.from("dps_history");
 
     mShowDps   = dps_Cvar.from("dps_show_dps");
     mShowGraph = dps_Cvar.from("dps_show_graph");
@@ -193,9 +197,10 @@ class dps_EventHandler : EventHandler
   int total() const
   {
     int result = 0;
-    for (uint i = 0; i < HISTORY_SIZE; ++i)
+    uint end = mHistorySize.getInt() * TICRATE;
+    for (uint i = 0; i < end; ++i)
     {
-      result += mHistory[i];
+      result += mHistory[makeIndex(-i)];
     }
     return result;
   }
@@ -204,13 +209,14 @@ class dps_EventHandler : EventHandler
   int maximum() const
   {
     int max = 0;
-    for (uint i = 0; i < HISTORY_SIZE - TICRATE; ++i)
+    uint end = mHistorySize.getInt() * TICRATE - TICRATE;
+    for (uint i = 0; i < end; ++i)
     {
       int localSum = 0;
       for (int j = 0; j < TICRATE; ++j)
       {
         // makeIndex inlined here for better performance.
-        int index = (level.time + i + j) % HISTORY_SIZE;
+        int index = (level.time - i - j + HISTORY_SIZE) % HISTORY_SIZE;
         localSum += mHistory[index];
       }
 
@@ -225,12 +231,13 @@ class dps_EventHandler : EventHandler
   {
     int result = 0;
 
-    for (int i = 0; i < HISTORY_SECONDS; ++i)
+    uint end = mHistorySize.getInt();
+    for (int i = 0; i < end; ++i)
     {
       int localSum = 0;
       for (int j = 0; j < TICRATE; ++j)
       {
-        int index = makeIndex(i * TICRATE + j - HISTORY_SIZE + 1);
+        int index = makeIndex(- i * TICRATE - j + HISTORY_SIZE + 1);
         localSum += mHistory[index];
       }
       result = max(result, localSum);
@@ -243,9 +250,10 @@ class dps_EventHandler : EventHandler
   double average() const
   {
     double sum = 0;
-    for (int i = 0; i < HISTORY_SIZE; ++i)
+    uint end = mHistorySize.getInt() * TICRATE;
+    for (int i = 0; i < end; ++i)
     {
-      sum += mHistory[i];
+      sum += mHistory[makeIndex(-i)];
     }
     return sum / HISTORY_SIZE;
   }
@@ -296,6 +304,7 @@ class dps_EventHandler : EventHandler
   private dps_Cvar mScale;
   private dps_Cvar mX;
   private dps_Cvar mY;
+  private dps_Cvar mHistorySize;
 
   private dps_Cvar mShowDps;
   private dps_Cvar mShowGraph;
