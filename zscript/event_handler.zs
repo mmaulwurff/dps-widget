@@ -36,11 +36,6 @@ class dps_EventHandler : EventHandler
     }
 
     mHistory[nextIndex()] = 0;
-
-    mScaleInt = mScale.getInt();
-    mScreenWidth  = Screen.getWidth()  / mScaleInt;
-    mScreenHeight = Screen.getHeight() / mScaleInt;
-
     mDps = damagePerSecond();
 
     if (level.time % 35 == 0)
@@ -59,42 +54,46 @@ class dps_EventHandler : EventHandler
   override
   void renderOverlay(RenderEvent event)
   {
-    int startX = int(mX.getDouble() * mScreenWidth);
-    int startY = int(mY.getDouble() * mScreenHeight);
+    int scale = mScale.getInt();
+    int screenWidth  = Screen.getWidth()  / scale;
+    int screenHeight = Screen.getHeight() / scale;
 
-    startY += drawText(bigFont, startX, startY, String.format("%d", mDps));
+    int startX = int(mX.getDouble() * screenWidth);
+    int startY = int(mY.getDouble() * screenHeight);
 
-    if (mShowGraph.getBool()) startY += drawGraph(startX, startY);
-    if (mShowMax  .getBool()) startY += drawMax  (startX, startY);
-    if (mShowAvg  .getBool()) startY += drawAvg  (startX, startY);
-    if (mShowTotal.getBool()) startY += drawTotal(startX, startY);
+    startY += drawText(bigFont, startX, startY, String.format("%d", mDps), screenWidth, screenHeight);
+
+    if (mShowGraph.getBool()) startY += drawGraph(startX, startY, screenWidth, screenHeight, scale);
+    if (mShowMax  .getBool()) startY += drawMax  (startX, startY, screenWidth, screenHeight);
+    if (mShowAvg  .getBool()) startY += drawAvg  (startX, startY, screenWidth, screenHeight);
+    if (mShowTotal.getBool()) startY += drawTotal(startX, startY, screenWidth, screenHeight);
   }
 
 // private: ////////////////////////////////////////////////////////////////////////////////////////
 
   private ui
-  int drawTotal(int startX, int startY)
+  int drawTotal(int startX, int startY, int screenWidth, int screenHeight)
   {
     String totalString = String.format("%s: %d", StringTable.localize("$DPS_TOTAL"), mTotal);
-    return drawText(smallFont, startX, startY, totalString);
+    return drawText(smallFont, startX, startY, totalString, screenWidth, screenHeight);
   }
 
   private ui
-  int drawAvg(int startX, int startY)
+  int drawAvg(int startX, int startY, int screenWidth, int screenHeight)
   {
     String avgString = String.format("%s: %.2f", StringTable.localize("$DPS_AVERAGE"), mAverage);
-    return drawText(smallFont, startX, startY, avgString);
+    return drawText(smallFont, startX, startY, avgString, screenWidth, screenHeight);
   }
 
   private ui
-  int drawMax(int startX, int startY)
+  int drawMax(int startX, int startY, int screenWidth, int screenHeight)
   {
     String maxString = String.format("%s: %d", StringTable.localize("$DPS_MAX"), mMax);
-    return drawText(smallFont, startX, startY, maxString);
+    return drawText(smallFont, startX, startY, maxString, screenWidth, screenHeight);
   }
 
   private ui
-  int drawGraph(int startX, int startY)
+  int drawGraph(int startX, int startY, int screenWidth, int screenHeight, int scale)
   {
     Color c = mColor.getString();
     double alpha = mAlpha.getDouble();
@@ -107,8 +106,8 @@ class dps_EventHandler : EventHandler
                       , DTA_FillColor     , c
                       , DTA_AlphaChannel  , true
                       , DTA_Alpha         , alpha
-                      , DTA_VirtualWidth  , mScreenWidth
-                      , DTA_VirtualHeight , mScreenHeight
+                      , DTA_VirtualWidth  , screenWidth
+                      , DTA_VirtualHeight , screenHeight
                       , DTA_DestWidth     , GRAPH_WIDTH
                       , DTA_DestHeight    , GRAPH_HEIGHT
                       , DTA_KeepRatio     , true
@@ -118,30 +117,24 @@ class dps_EventHandler : EventHandler
     {
       if (mBarHeights[i] == 0) continue;
 
-      drawBar(startX, startY, i, mBarHeights[i], c, alpha);
+      Screen.drawTexture( mTexture
+                        , NO_ANIMATION
+                        , startX + i
+                        , startY + GRAPH_HEIGHT - mBarHeights[i]
+                        , DTA_FillColor     , c
+                        , DTA_Alpha         , alpha
+                        , DTA_VirtualWidth  , screenWidth
+                        , DTA_VirtualHeight , screenHeight
+                        , DTA_ClipBottom    , int(startY + GRAPH_HEIGHT) * scale
+                        , DTA_KeepRatio     , true
+                        );
     }
 
     return GRAPH_HEIGHT + 1;
   }
 
   private ui
-  void drawBar(int startX, int startY, int i, int height, Color aColor, double alpha)
-  {
-    Screen.drawTexture( mTexture
-                      , NO_ANIMATION
-                      , startX + i
-                      , startY + GRAPH_HEIGHT - height
-                      , DTA_FillColor     , aColor
-                      , DTA_Alpha         , alpha
-                      , DTA_VirtualWidth  , mScreenWidth
-                      , DTA_VirtualHeight , mScreenHeight
-                      , DTA_ClipBottom    , int(startY + GRAPH_HEIGHT) * mScaleInt
-                      , DTA_KeepRatio     , true
-                      );
-  }
-
-  private ui
-  int drawText(Font aFont, int x, int y, String aString)
+  int drawText(Font aFont, int x, int y, String aString, int screenWidth, int screenHeight)
   {
     int width = aFont.stringWidth(aString);
     Screen.drawText( aFont
@@ -149,8 +142,8 @@ class dps_EventHandler : EventHandler
                    , x + (GRAPH_WIDTH - width) / 2
                    , y
                    , aString
-                   , DTA_VirtualWidth  , mScreenWidth
-                   , DTA_VirtualHeight , mScreenHeight
+                   , DTA_VirtualWidth  , screenWidth
+                   , DTA_VirtualHeight , screenHeight
                    , DTA_KeepRatio     , true
                    );
 
@@ -299,10 +292,6 @@ class dps_EventHandler : EventHandler
   private dps_Cvar mShowMax;
   private dps_Cvar mShowAvg;
   private dps_Cvar mShowTotal;
-
-  private int mScaleInt;
-  private int mScreenWidth;
-  private int mScreenHeight;
 
   private int mDps;
   private int mMax;
