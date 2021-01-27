@@ -1,6 +1,6 @@
-Sprite dpstb0, 60, 60
+Sprite dps_o0, 60, 60
 {
-  Patch dpsta0, 0, 0
+  Patch dps_t0, 0, 0
   Offset 30, 60
   XScale 1.0
   YScale 1.2

@@ -35,7 +35,7 @@ class dps_Target : Actor
   States
   {
   Spawn:
-    dpst B -1;
+    dps_ O -1;
     stop;
   }
 

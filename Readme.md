@@ -22,6 +22,10 @@ This mod is a part of [m8f's toolbox](https://mmaulwurff.github.io/pages/toolbox
 - when changing history size, data updates after a second, and the graph may
   look wrong for a second.
 
+## Acknowledgments
+
+- Thanks to juq for bug reports.
+
 ## License
 
 Code: GPLv3
